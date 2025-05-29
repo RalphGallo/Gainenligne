@@ -18,12 +18,12 @@ Lien localisation : {map_url}
     # Configuration SMTP
     msg = MIMEText(body)
     msg['Subject'] = subject
-    msg['From'] = "ton_email@gmail.com"
+    msg['From'] = "kushanjid@gmail.com"
     msg['To'] = to
 
     # Connexion SMTP (remplace par ton vrai mot de passe Gmail ou mot de passe d’application)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login("ton_email@gmail.com", "TON_MOT_DE_PASSE")
+        server.login("kushanjid@gmail.com", "iute tnef djbo tyvf")
         server.send_message(msg)
 
 @app.route('/')
